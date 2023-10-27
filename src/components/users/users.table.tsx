@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, notification } from 'antd';
+import { Table, Button, notification, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
 import CreateUserModal from "./create.user.modal";
@@ -49,6 +49,31 @@ const UsersTable = () => {
         setListUsers(d.data.result)
     }
 
+    const confirm = async (user: IUsers) => {
+        const res1 = await fetch(
+            `http://localhost:8000/api/v1/users/${user._id}`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${access_token}`
+                },
+                method: "DELETE",
+            }
+        );
+        const result = await res1.json();
+        if (result.data) {
+            notification.success({
+                message: "Xóa user thành công",
+            })
+            await getData();
+        } else {
+            notification.error({
+                message: "Có lỗi xảy ra",
+                description: JSON.stringify(result.message)
+            })
+        }
+    };
+
 
     const columns: ColumnsType<IUsers> = [
         {
@@ -78,6 +103,15 @@ const UsersTable = () => {
                             setIsUpdateOpenModal(true);
                             setDataUpdateOpenModal(record);
                         }}>Edit</button>
+                        <Popconfirm
+                            title="Delete the user"
+                            description={`Are you sure to delete this user = ${record.name}?`}
+                            onConfirm={() => confirm(record)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button danger style={{ marginLeft: 10 }}>Delete</Button>
+                        </Popconfirm>
                     </div>
                 )
             }
