@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Input, notification } from 'antd';
+import { Table, Button, notification } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
+import CreateUserModal from "./create.user.modal";
+import UpdateUserModal from "./update.user.modal";
 
 
 interface IUsers {
@@ -15,15 +17,9 @@ const UsersTable = () => {
 
     const [listUsers, setListUsers] = useState([])
 
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [age, setAge] = useState("")
-    const [gender, setGender] = useState("")
-    const [address, setAddress] = useState("")
-    const [role, setRole] = useState("")
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCreateOpenModal, setIsCreateOpenModal] = useState(false);
+    const [isUpdateOpenModal, setIsUpdateOpenModal] = useState(false);
+    const [dataUpdateOpenModal, setDataUpdateOpenModal] = useState<any>();
 
     useEffect(() => {
         getData()
@@ -44,6 +40,12 @@ const UsersTable = () => {
         );
         const d = await res1.json();
         // console.log(">>> check data 1: ", d.data.result);
+        if (!d.data) {
+            notification.error({
+                message: "Có lỗi xảy ra",
+                description: JSON.stringify(d.message)
+            })
+        }
         setListUsers(d.data.result)
     }
 
@@ -65,56 +67,22 @@ const UsersTable = () => {
             title: 'Role',
             dataIndex: 'role',
         },
-    ]
+        {
+            title: 'Actions',
+            render: (_, record) => {
 
-    const createNewUser = async (data: any) => {
-
-        const res1 = await fetch(
-            "http://localhost:8000/api/v1/users",
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    'Authorization': `Bearer ${access_token}`
-                },
-                method: "POST",
-                body: JSON.stringify({ ...data }),
+                return (
+                    <div>
+                        <button onClick={() => {
+                            // console.log(">>>check record", record);
+                            setIsUpdateOpenModal(true);
+                            setDataUpdateOpenModal(record);
+                        }}>Edit</button>
+                    </div>
+                )
             }
-        );
-        const result = await res1.json();
-        return result;
-    }
-
-    const handleOk = async () => {
-        const data = {
-            name, email, password, age, gender, address, role
-        }
-        // console.log(">>>check state:", data)
-        const result = await createNewUser(data);
-        if (result.data) {
-            notification.success({
-                message: "Tạo mới user thành công",
-            })
-            await getData();
-            setIsModalOpen(false);
-        } else {
-            notification.error({
-                message: "Có lỗi xảy ra",
-                description: JSON.stringify(result.message)
-            })
-        }
-    };
-
-    const handleOpenModal = () => {
-        setName("");
-        setEmail("");
-        setPassword("");
-        setAge("");
-        setGender("");
-        setAddress("");
-        setRole("");
-        setIsModalOpen(true);
-    }
-
+        },
+    ]
 
     return (
         <div>
@@ -128,7 +96,7 @@ const UsersTable = () => {
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
-                        onClick={() => handleOpenModal()}
+                        onClick={() => setIsCreateOpenModal(true)}
                     >
                         Add New
                     </Button>
@@ -141,63 +109,26 @@ const UsersTable = () => {
                 rowKey={"_id"}
             />
 
-            <Modal title="Add New User"
-                open={(isModalOpen)}
-                onOk={handleOk}
-                onCancel={() => setIsModalOpen(false)}
-                maskClosable={false}
-            >
-                <div>
-                    <label>Name:</label>
-                    <Input
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Email:</label>
-                    <Input
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <Input
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Age:</label>
-                    <Input
-                        value={age}
-                        onChange={(event) => setAge(event.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Gender:</label>
-                    <Input
-                        value={gender}
-                        onChange={(event) => setGender(event.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Address:</label>
-                    <Input
-                        value={address}
-                        onChange={(event) => setAddress(event.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Role:</label>
-                    <Input
-                        value={role}
-                        onChange={(event) => setRole(event.target.value)}
-                    />
-                </div>
+            {
+                isCreateOpenModal &&
+                <CreateUserModal
+                    setIsCreateOpenModal={setIsCreateOpenModal}
+                    isCreateOpenModal={isCreateOpenModal}
+                    getData={getData}
+                    access_token={access_token}
+                />
+            }
 
-            </Modal>
+            {
+                isUpdateOpenModal &&
+                <UpdateUserModal
+                    setIsUpdateOpenModal={setIsUpdateOpenModal}
+                    isUpdateOpenModal={isUpdateOpenModal}
+                    getData={getData}
+                    access_token={access_token}
+                    dataUpdateOpenModal={dataUpdateOpenModal}
+                />
+            }
 
         </div>
     )
