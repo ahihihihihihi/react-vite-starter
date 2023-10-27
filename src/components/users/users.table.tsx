@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Input } from 'antd';
+import { Table, Button, Modal, Input, notification } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -23,14 +23,15 @@ const UsersTable = () => {
     const [address, setAddress] = useState("")
     const [role, setRole] = useState("")
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         getData()
     }, [])
 
-    const getData = async () => {
+    const access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiX2lkIjoiNjUzNzgwY2RlZTlhNWM4Nzk4YzIwMDNjIiwiZW1haWwiOiJob2lkYW5pdEBnbWFpbC5jb20iLCJhZGRyZXNzIjoiVmlldE5hbSIsImlzVmVyaWZ5Ijp0cnVlLCJuYW1lIjoiSSdtIEjhu49pIETDom4gSVQiLCJ0eXBlIjoiU1lTVEVNIiwicm9sZSI6IkFETUlOIiwiZ2VuZGVyIjoiTUFMRSIsImFnZSI6OTYsImlhdCI6MTY5ODM5MDU5NywiZXhwIjoxNzg0NzkwNTk3fQ.P5kmyaVejm49rQqyoWqMJcoXi6sipZON3QVJg7MYyjw"
 
-        const access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiX2lkIjoiNjUzNzgwY2RlZTlhNWM4Nzk4YzIwMDNjIiwiZW1haWwiOiJob2lkYW5pdEBnbWFpbC5jb20iLCJhZGRyZXNzIjoiVmlldE5hbSIsImlzVmVyaWZ5Ijp0cnVlLCJuYW1lIjoiSSdtIEjhu49pIETDom4gSVQiLCJ0eXBlIjoiU1lTVEVNIiwicm9sZSI6IkFETUlOIiwiZ2VuZGVyIjoiTUFMRSIsImFnZSI6OTYsImlhdCI6MTY5ODMwODIzMSwiZXhwIjoxNzg0NzA4MjMxfQ.ioQU8rVFFYObqusUUifaKc-SfoC_yJljNIesTXgVUNQ"
+    const getData = async () => {
 
         const res1 = await fetch(
             "http://localhost:8000/api/v1/users/all",
@@ -45,7 +46,6 @@ const UsersTable = () => {
         // console.log(">>> check data 1: ", d.data.result);
         setListUsers(d.data.result)
     }
-
 
 
     const columns: ColumnsType<IUsers> = [
@@ -67,23 +67,54 @@ const UsersTable = () => {
         },
     ]
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const createNewUser = async (data: any) => {
 
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
+        const res1 = await fetch(
+            "http://localhost:8000/api/v1/users",
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${access_token}`
+                },
+                method: "POST",
+                body: JSON.stringify({ ...data }),
+            }
+        );
+        const result = await res1.json();
+        return result;
+    }
 
-    const handleOk = () => {
+    const handleOk = async () => {
         const data = {
             name, email, password, age, gender, address, role
         }
-        console.log(">>>check state:", data)
-        setIsModalOpen(false);
+        // console.log(">>>check state:", data)
+        const result = await createNewUser(data);
+        if (result.data) {
+            notification.success({
+                message: "Tạo mới user thành công",
+            })
+            await getData();
+            setIsModalOpen(false);
+        } else {
+            notification.error({
+                message: "Có lỗi xảy ra",
+                description: JSON.stringify(result.message)
+            })
+        }
     };
 
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
+    const handleOpenModal = () => {
+        setName("");
+        setEmail("");
+        setPassword("");
+        setAge("");
+        setGender("");
+        setAddress("");
+        setRole("");
+        setIsModalOpen(true);
+    }
+
 
     return (
         <div>
@@ -97,7 +128,7 @@ const UsersTable = () => {
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
-                        onClick={showModal}
+                        onClick={() => handleOpenModal()}
                     >
                         Add New
                     </Button>
@@ -111,9 +142,9 @@ const UsersTable = () => {
             />
 
             <Modal title="Add New User"
-                open={isModalOpen}
+                open={(isModalOpen)}
                 onOk={handleOk}
-                onCancel={handleCancel}
+                onCancel={() => setIsModalOpen(false)}
                 maskClosable={false}
             >
                 <div>
