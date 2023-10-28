@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './App.scss'
@@ -13,6 +13,7 @@ import UsersPage from './screens/users.page.tsx';
 import { TeamOutlined, FireOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
+
 
 const items: MenuProps['items'] = [
   {
@@ -46,6 +47,32 @@ const Header = () => {
 };
 
 const LayoutAdmin = () => {
+
+  const getAccessToken = async () => {
+
+    const res1 = await fetch(
+      "http://localhost:8000/api/v1/auth/login",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          username: "hoidanit@gmail.com",
+          password: "123456"
+        }),
+      }
+    );
+    const result = await res1.json();
+    if (result.data) {
+      localStorage.setItem("access_token", result.data.access_token)
+    }
+  }
+
+  useEffect(() => {
+    getAccessToken();
+  }, [])
+
   return (
     <div>
       <Header />

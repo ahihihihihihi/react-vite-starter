@@ -25,7 +25,7 @@ const UsersTable = () => {
         getData()
     }, [])
 
-    const access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiX2lkIjoiNjUzNzgwY2RlZTlhNWM4Nzk4YzIwMDNjIiwiZW1haWwiOiJob2lkYW5pdEBnbWFpbC5jb20iLCJhZGRyZXNzIjoiVmlldE5hbSIsImlzVmVyaWZ5Ijp0cnVlLCJuYW1lIjoiSSdtIEjhu49pIETDom4gSVQiLCJ0eXBlIjoiU1lTVEVNIiwicm9sZSI6IkFETUlOIiwiZ2VuZGVyIjoiTUFMRSIsImFnZSI6OTYsImlhdCI6MTY5ODM5MDU5NywiZXhwIjoxNzg0NzkwNTk3fQ.P5kmyaVejm49rQqyoWqMJcoXi6sipZON3QVJg7MYyjw"
+    const access_token = localStorage.getItem("access_token") as string
 
     const getData = async () => {
 
