@@ -21,16 +21,23 @@ const UsersTable = () => {
     const [isUpdateOpenModal, setIsUpdateOpenModal] = useState(false);
     const [dataUpdateOpenModal, setDataUpdateOpenModal] = useState<any>();
 
+    const [meta, setMeta] = useState({
+        current: 1,
+        pageSize: 2,
+        pages: 0,
+        total: 0
+    })
+
     useEffect(() => {
         getData()
-    }, [])
+    }, [meta.current, meta.pageSize])
 
     const access_token = localStorage.getItem("access_token") as string
 
     const getData = async () => {
 
         const res1 = await fetch(
-            "http://localhost:8000/api/v1/users/all",
+            `http://localhost:8000/api/v1/users?current=${meta.current}&pageSize=${meta.pageSize}`,
             {
                 headers: {
                     "Content-Type": "application/json",
@@ -47,6 +54,12 @@ const UsersTable = () => {
             })
         }
         setListUsers(d.data.result)
+        setMeta({
+            current: d.data.meta.current,
+            pageSize: d.data.meta.pageSize,
+            pages: d.data.meta.pages,
+            total: d.data.meta.total
+        })
     }
 
     const confirm = async (user: IUsers) => {
@@ -74,8 +87,23 @@ const UsersTable = () => {
         }
     };
 
+    const handleOnChangePagination = (page: number, pageSize: number) => {
+        // console.log(">>> check page, pageSize: ", page, "|", pageSize)
+        setMeta({
+            current: page,
+            pageSize: pageSize,
+            pages: meta.pages,
+            total: meta.total
+        })
+    }
+
 
     const columns: ColumnsType<IUsers> = [
+        {
+            title: 'RowHead',
+            key: "index",
+            render: (value, item, index) => (meta.current - 1) * meta.pageSize + index + 1
+        },
         {
             title: 'Email',
             dataIndex: 'email',
@@ -141,6 +169,14 @@ const UsersTable = () => {
                 columns={columns}
                 dataSource={listUsers}
                 rowKey={"_id"}
+                pagination={{
+                    current: meta.current,
+                    pageSize: meta.pageSize,
+                    total: meta.total,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                    onChange: (page: number, pageSize: number) => handleOnChangePagination(page, pageSize),
+                    showSizeChanger: true
+                }}
             />
 
             {
