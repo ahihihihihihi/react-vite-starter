@@ -1,5 +1,5 @@
-import { Input, Modal, notification } from "antd";
-import { useState } from "react";
+import { Input, Modal, notification, Form, Select, InputNumber } from "antd";
+import { Option } from "antd/es/mentions";
 
 
 interface IProps {
@@ -13,45 +13,12 @@ const CreateUserModal = (props: IProps) => {
 
     const { access_token, isCreateOpenModal, setIsCreateOpenModal, getData } = props;
 
-    const [name, setName] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [age, setAge] = useState("")
-    const [gender, setGender] = useState("")
-    const [address, setAddress] = useState("")
-    const [role, setRole] = useState("")
-
+    const [form] = Form.useForm();
 
     const handleCloseModal = () => {
-        setName("");
-        setEmail("");
-        setPassword("");
-        setAge("");
-        setGender("");
-        setAddress("");
-        setRole("");
+        form.resetFields();
         setIsCreateOpenModal(false);
     }
-
-    const handleOk = async () => {
-        const data = {
-            name, email, password, age, gender, address, role
-        }
-        // console.log(">>>check state:", data)
-        const result = await createNewUser(data);
-        if (result.data) {
-            notification.success({
-                message: "Tạo mới user thành công",
-            })
-            await getData();
-            handleCloseModal();
-        } else {
-            notification.error({
-                message: "Có lỗi xảy ra",
-                description: JSON.stringify(result.message)
-            })
-        }
-    };
 
     const createNewUser = async (data: any) => {
 
@@ -70,62 +37,117 @@ const CreateUserModal = (props: IProps) => {
         return result;
     }
 
+    const onFinish = async (values: any) => {
+        // console.log('Success:', values);
+        const data = values;
+        // console.log(">>>check state:", data)
+        const result = await createNewUser(data);
+        if (result.data) {
+            notification.success({
+                message: "Tạo mới user thành công",
+            })
+            await getData();
+            handleCloseModal();
+        } else {
+            notification.error({
+                message: "Có lỗi xảy ra",
+                description: JSON.stringify(result.message)
+            })
+        }
+    };
+
     return (
         <Modal title="Add New User"
             open={(isCreateOpenModal)}
-            onOk={handleOk}
+            onOk={() => form.submit()}
             onCancel={() => handleCloseModal()}
             maskClosable={false}
         >
-            <div>
-                <label>Name:</label>
-                <Input
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                />
-            </div>
-            <div>
-                <label>Email:</label>
-                <Input
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                />
-            </div>
-            <div>
-                <label>Password:</label>
-                <Input
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                />
-            </div>
-            <div>
-                <label>Age:</label>
-                <Input
-                    value={age}
-                    onChange={(event) => setAge(event.target.value)}
-                />
-            </div>
-            <div>
-                <label>Gender:</label>
-                <Input
-                    value={gender}
-                    onChange={(event) => setGender(event.target.value)}
-                />
-            </div>
-            <div>
-                <label>Address:</label>
-                <Input
-                    value={address}
-                    onChange={(event) => setAddress(event.target.value)}
-                />
-            </div>
-            <div>
-                <label>Role:</label>
-                <Input
-                    value={role}
-                    onChange={(event) => setRole(event.target.value)}
-                />
-            </div>
+
+            <Form
+                name="basic"
+                onFinish={onFinish}
+                layout="vertical"
+                form={form}
+            >
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Name"
+                    name="name"
+                    rules={[{ required: true, message: 'Please input your name!' }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Email"
+                    name="email"
+                    rules={[{ required: true, message: 'Please input your email!' }]}
+                >
+                    <Input type="email" />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Password"
+                    name="password"
+                    rules={[{ required: true, message: 'Please input your password!' }]}
+                >
+                    <Input.Password />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Age"
+                    name="age"
+                    rules={[{ required: true, message: 'Please input your age!' }]}
+                >
+                    <InputNumber
+                        style={{ width: "100%" }}
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Address"
+                    name="address"
+                    rules={[{ required: true, message: 'Please input your address!' }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Gender"
+                    name="gender"
+                    rules={[{ required: true }]}
+                >
+                    <Select
+                        placeholder="Select an option and change input text above"
+                        allowClear
+                    >
+                        <Option value="MALE">male</Option>
+                        <Option value="FEMALE">female</Option>
+                        <Option value="OTHER">other</Option>
+                    </Select>
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Role"
+                    name="role"
+                    rules={[{ required: true }]}
+                >
+                    <Select
+                        placeholder="Select an option and change input text above"
+                        allowClear
+                    >
+                        <Option value="USER">user</Option>
+                        <Option value="ADMIN">admin</Option>
+                    </Select>
+                </Form.Item>
+            </Form>
 
         </Modal>
     )
