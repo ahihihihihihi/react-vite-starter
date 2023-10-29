@@ -1,5 +1,4 @@
 import { Input, Modal, notification, Form, Select, InputNumber } from "antd";
-import { Option } from "antd/es/mentions";
 
 
 interface IProps {
@@ -14,6 +13,17 @@ const CreateUserModal = (props: IProps) => {
     const { access_token, isCreateOpenModal, setIsCreateOpenModal, getData } = props;
 
     const [form] = Form.useForm();
+
+    const optionsGender = [
+        { value: 'MALE', label: 'male' },
+        { value: 'FEMALE', label: 'Female' },
+        { value: 'OTHER', label: 'other' },
+    ];
+
+    const optionsRole = [
+        { value: 'USER', label: 'user' },
+        { value: 'ADMIN', label: 'admin' },
+    ];
 
     const handleCloseModal = () => {
         form.resetFields();
@@ -126,10 +136,8 @@ const CreateUserModal = (props: IProps) => {
                     <Select
                         placeholder="Select an option and change input text above"
                         allowClear
+                        options={optionsGender}
                     >
-                        <Option value="MALE">male</Option>
-                        <Option value="FEMALE">female</Option>
-                        <Option value="OTHER">other</Option>
                     </Select>
                 </Form.Item>
 
@@ -142,9 +150,8 @@ const CreateUserModal = (props: IProps) => {
                     <Select
                         placeholder="Select an option and change input text above"
                         allowClear
+                        options={optionsRole}
                     >
-                        <Option value="USER">user</Option>
-                        <Option value="ADMIN">admin</Option>
                     </Select>
                 </Form.Item>
             </Form>
