@@ -101,7 +101,7 @@ const TracksTable = () => {
                         <Popconfirm
                             title="Delete the track"
                             description={`Are you sure to delete this track = ${record.title}?`}
-                            onConfirm={() => confirm(record._id)}
+                            onConfirm={() => confirm(record)}
                             okText="Yes"
                             cancelText="No"
                         >
@@ -122,6 +122,31 @@ const TracksTable = () => {
             total: meta.total
         })
     }
+
+    const confirm = async (track: ITracks) => {
+        const res1 = await fetch(
+            `http://localhost:8000/api/v1/tracks/${track._id}`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${access_token}`
+                },
+                method: "DELETE",
+            }
+        );
+        const result = await res1.json();
+        if (result.data) {
+            notification.success({
+                message: "Xóa track thành công",
+            })
+            await getData();
+        } else {
+            notification.error({
+                message: "Có lỗi xảy ra",
+                description: JSON.stringify(result.message)
+            })
+        }
+    };
 
     return (
         <div>

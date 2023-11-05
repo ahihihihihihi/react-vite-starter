@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 import UsersPage from './screens/users.page.tsx';
 
-import { TeamOutlined, FireOutlined } from '@ant-design/icons';
+import { TeamOutlined, FireOutlined, NotificationOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import TracksPage from './screens/tracks.page.tsx';
@@ -30,7 +30,7 @@ const items: MenuProps['items'] = [
   {
     label: <Link to={'/tracks'}>Manage Tracks</Link>,
     key: 'tracks',
-    icon: <TeamOutlined />,
+    icon: <NotificationOutlined />,
   },
 ];
 
