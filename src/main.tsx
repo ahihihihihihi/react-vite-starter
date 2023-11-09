@@ -14,6 +14,7 @@ import { TeamOutlined, FireOutlined, NotificationOutlined } from '@ant-design/ic
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import TracksPage from './screens/tracks.page.tsx';
+import CommentsPage from './screens/comments.page.tsx';
 
 
 const items: MenuProps['items'] = [
@@ -30,6 +31,11 @@ const items: MenuProps['items'] = [
   {
     label: <Link to={'/tracks'}>Manage Tracks</Link>,
     key: 'tracks',
+    icon: <NotificationOutlined />,
+  },
+  {
+    label: <Link to={'/comments'}>Manage Comments</Link>,
+    key: 'comments',
     icon: <NotificationOutlined />,
   },
 ];
@@ -103,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: "tracks",
         element: <TracksPage />,
+      },
+      {
+        path: "comments",
+        element: <CommentsPage />,
       },
     ]
   },
